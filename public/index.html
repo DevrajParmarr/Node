@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel File Merger System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            background-color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            border-radius: 12px;
+            max-width: 700px;
+            width: 90%;
+            text-align: center;
+            animation: fadeIn 1.5s ease;
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #0056b3;
+        }
+
+        p.description {
+            font-size: 16px;
+            margin-bottom: 30px;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        label {
+            font-weight: 600;
+            color: #444;
+            display: block;
+            text-align: left;
+            margin-bottom: 8px;
+        }
+
+        input[type="file"] {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            width: 100%;
+            margin-bottom: 20px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        input[type="file"]:hover {
+            border-color: #007bff;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        .output {
+            margin-top: 30px;
+            font-size: 16px;
+        }
+
+        .output p {
+            color: #28a745;
+        }
+
+        .loading {
+            font-size: 16px;
+            color: #f0ad4e;
+            display: none;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 0.7;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0.7;
+            }
+        }
+
+        footer {
+            margin-top: 40px;
+            font-size: 12px;
+            color: #777;
+        }
+
+        footer a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Excel File Merger Tool</h1>
+
+        <p class="description">
+            This tool allows you to merge multiple Excel files (.xlsx format) by automatically detecting common columns and combining the data. If any data is missing in a common column, the tool will fill in the gaps with zeros or default values.
+            Perfect for combining student records, attendance, or any large datasets into a single file.
+        </p>
+
+        <form id="mergeForm" enctype="multipart/form-data">
+            <label for="files">Upload Excel Files (.xlsx):</label>
+            <input type="file" id="files" name="files" multiple accept=".xlsx" required>
+
+            <button type="submit">Merge Files</button>
+
+            <div class="loading" id="loadingText">Merging files... Please wait.</div>
+        </form>
+
+        <div class="output" id="outputContainer"></div>
+    </div>
+
+    <script>
+        document.getElementById('mergeForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const formData = new FormData();
+            const files = document.getElementById('files').files;
+
+            if (files.length < 2) {
+                alert('Please upload at least two Excel files.');
+                return;
+            }
+
+            for (let i = 0; i < files.length; i++) {
+                formData.append('files', files[i]);
+            }
+
+            const loadingText = document.getElementById('loadingText');
+            const outputContainer = document.getElementById('outputContainer');
+
+            loadingText.style.display = 'block';
+            outputContainer.innerHTML = ''; // Clear previous output
+
+            fetch('/merge', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.blob())
+                .then(blob => {
+                    loadingText.style.display = 'none';
+
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = 'merged_output.xlsx';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+
+                    outputContainer.innerHTML = `<p>File merged successfully! Click the download button to save it.</p>`;
+                })
+                .catch(error => {
+                    loadingText.style.display = 'none';
+                    outputContainer.innerHTML = `<p style="color: red;">An error occurred: ${error.message}</p>`;
+                });
+        });
+    </script>
+</body>
+</html>
