@@ -1,6 +1,4 @@
-Here is a well-structured **README** file for your **Node.js Excel File Merger** project:
-
----
+--
 
 # **Node.js Excel File Merger**
 
@@ -99,6 +97,4 @@ If you want to contribute to this project, follow these steps:
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
----
-
-You can adapt the **README** as needed, for example, replacing the `path/to/screenshot1.png` with actual paths if you include screenshots. This file provides a clear guide on how to install, use, and contribute to the project, as well as an overview of its purpose and features.
+--
